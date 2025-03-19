@@ -1,0 +1,166 @@
+* {
+    --bg-color: #662F10;
+    --bg-alt-color: #44200A;
+    --border-color: #9C5730;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    gap: 100px;
+    background-color: var(--bg-color);
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+    box-sizing: border-box;
+}
+
+/* Menu container */
+
+#menuContainer {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    gap: 5px;
+}
+
+#menuContainer img.logo {
+    width: 100%;
+    height: 100%;
+    margin-bottom: 15px;
+}
+
+#menuContainer input {
+    background-color: var(--bg-alt-color);
+    color: white;
+    padding: 10px;
+    border: 3px solid #9C5730;
+    border-radius: 5px;
+}
+
+#menuContainer select {
+    background-color: var(--bg-alt-color);
+    color: white;
+    padding: 10px;
+    border: 3px solid #9C5730;
+    border-radius: 5px;
+}
+
+.buttons-group {
+    display: flex;
+    justify-content: space-between;
+}
+
+.buttons-group button {
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: 700;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.buttons-group button img {
+    width: 25px;
+    height: 25px;
+    margin-right: 5px;
+}
+
+.buttons-group button:nth-child(1) {
+    background-color: green;
+}
+.buttons-group button:nth-child(2) {
+    background-color: yellow;
+    color: var(--bg-alt-color);
+}
+
+/* Instruction container */
+
+#instructionContainer {
+    display: none;
+    justify-content: start;
+    align-items: start;
+    background-color: var(--bg-alt-color);
+    height: 350px;
+    padding: 20px 40px;
+    gap: 20px;
+}
+
+/* Game container */
+
+#gameContainer {
+    display: none;
+    gap: 20px;
+    border: 1px solid white;
+    padding-right: 20px;
+}
+
+#gameContainer canvas {
+    border: 1px solid white;
+}
+
+.leaderboard-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.leaderboard-container select {
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.leaderboard-container .player-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid white;
+    border-style: none none solid none;
+}
+
+.leaderboard-container .player-stats p:nth-child(1) {
+    font-weight: 700;
+}
+
+.player-stats button {
+    background-color: yellow;
+    color: #662F10;
+    font-weight: 700;
+    padding: 10px 10px;
+}
+
+.game-stats {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 14%;
+    left: 45.5%;
+}
+
+.game-stats p:nth-child(1) {
+    margin-top: 0px;
+}
+
+.game-stats p {
+    margin-top: -10px;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+#sunCountText {
+    position: absolute;
+    color: black;
+    left: 25%;
+    top: 18.7%;
+    font-weight: 900;
+}

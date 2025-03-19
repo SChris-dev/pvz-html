@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PVZ HTML</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="./Sprites/General/Sun.png" type="image/x-icon">
+</head>
+<body>
+    
+    <div id="menuContainer">
+        <img src="./Sprites/General/image.png" alt="" class="logo">
+        <input type="text" id="usernameInput" placeholder="Input Username">
+        <select name="selectLevel" id="selectLevel">
+            <option value="0" selected disabled>Select Level</option>
+            <option value="1">Easy</option>
+            <option value="2">Medium</option>
+            <option value="3">Hard</option>
+        </select>
+        <div class="buttons-group">
+            <button id="startBtn" disabled><img src="./Sprites/General/Shovel.png" alt="">Play Game</button>
+            <button id="instructionBtn">Instruction</button>
+        </div>
+    </div>
+
+    <div id="instructionContainer">
+        <div class="instruction-content">
+            <h1>How to play game</h1>
+            <p>1. Input Username</p>
+            <p>2. Take the sun to choose the plant card</p>
+            <p>3. Put a plant cards into the field to fight zombies</p>
+            <p>4. Don't let zombies pass through the yard</p>
+            <p>5. Enjoy!</p>
+        </div>
+        <div id="closeInstructionBtn" style="cursor: pointer;">
+            <img src="./Sprites/General/close-icon.png" alt="" width="50" height="50">
+        </div>
+    </div>
+
+    <div id="gameContainer">
+        <p id="sunCountText">50</p>
+        <canvas id="canvas"></canvas>
+        <div class="game-stats">
+            <p id="usernameText">Player Name</p>
+            <p>Score : <span id="scoreText">0</span></p>
+            <p>Time : <span id="timerText">00:00</span></p>
+        </div>
+        <div class="leaderboard-container">
+            <h2>LEADERBOARD</h2>
+            <select name="selectFilter" id="selectFilter">
+                <option value="score" selected>Sort By Score</option>
+                <option value="time" selected>Sort By Time</option>
+            </select>
+            <div class="player-stats">
+                <div class="player-identity">
+                    <p>Thomas Galih</p>
+                    <p>Score: 44</p>
+                </div>
+                <button class="detailBtn"><i>Detail</i></button>
+            </div>
+            <div class="player-stats">
+                <div class="player-identity">
+                    <p>Thomas Galih</p>
+                    <p>Score: 44</p>
+                </div>
+                <button class="detailBtn"><i>Detail</i></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="menu.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
