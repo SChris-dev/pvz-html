@@ -34,38 +34,56 @@ seedPackets.forEach(packet => {
 const lawnmowerImage = new Image();
 lawnmowerImage.src = './Sprites/General/lawnmowerIdle.gif'
 
+const lawnmowerActiveImage = new Image();
+lawnmowerActiveImage.src = './Sprites/General/lawnmowerActivated.gif'
+
 const lawnmowerWidth = 100;
 const lawnmowerHeight = 100;
+const lawnmowerSpeed = 15;
 
-const lawnmowerFirstLane = {
-    x: 5,
-    y: 100,
-}
-
-const lawnmowerSecondLane = {
-    x: 5,
-    y: 200,
-}
-
-const lawnmowerThirdLane = {
-    x: 5,
-    y: 290,
-}
-
-const lawnmowerFourthLane = {
-    x: 5,
-    y: 380,
-}
-
-const lawnmowerFifthLane = {
-    x: 5,
-    y: 480,
-}
+const lawnmowers = [
+    {
+        x: 5,
+        y: 120,
+        active: false,
+        image: lawnmowerImage
+    },
+    {
+        x: 5,
+        y: 200,
+        active: false,
+        image: lawnmowerImage
+    },
+    {
+        x: 5,
+        y: 290,
+        active: false,
+        image: lawnmowerImage
+    },
+    {
+        x: 5,
+        y: 380,
+        active: false,
+        image: lawnmowerImage
+    },
+    {
+        x: 5,
+        y: 480,
+        active: false,
+        image: lawnmowerImage
+    }
+]
 
 const sunImage = new Image();
 sunImage.src = './Sprites/General/Sun.png';
 
 let suns = [];
+
+const peaImage = new Image();
+peaImage.src = './Sprites/General/Pea.png';
+
+const icePeaImage = new Image();
+icePeaImage.src = './Sprites/General/IcePea.png';
 
 // variables
 const usernameText = document.getElementById('usernameText');
@@ -83,6 +101,7 @@ let sunCount = 50;
 let selectedPlant = null;
 let plants = [];
 let shovelSelected = false;
+const WALL_NUT_HP = 100;
 
 // grid
 const rows = 5;
@@ -201,20 +220,9 @@ function drawSeeds() {
 function drawLawnMowers() {
     if (!lawnmowerImage.complete) return;
 
-    // first lane
-    ctx.drawImage(lawnmowerImage, lawnmowerFirstLane.x, lawnmowerFirstLane.y, lawnmowerWidth, lawnmowerHeight);
-
-    // second lane
-    ctx.drawImage(lawnmowerImage, lawnmowerSecondLane.x, lawnmowerSecondLane.y, lawnmowerWidth, lawnmowerHeight);
-
-    // third lane
-    ctx.drawImage(lawnmowerImage, lawnmowerThirdLane.x, lawnmowerThirdLane.y, lawnmowerWidth, lawnmowerHeight);
-
-    // fourth lane
-    ctx.drawImage(lawnmowerImage, lawnmowerFourthLane.x, lawnmowerFourthLane.y, lawnmowerWidth, lawnmowerHeight);
-
-    // fifth lane
-    ctx.drawImage(lawnmowerImage, lawnmowerFifthLane.x, lawnmowerFifthLane.y, lawnmowerWidth, lawnmowerHeight);
+    lawnmowers.forEach(mower => {
+        ctx.drawImage(mower.image, mower.x, mower.y, lawnmowerWidth, lawnmowerHeight);
+    })
 }
 
 const plantAnimations = {
@@ -385,10 +393,12 @@ function placePlant(row, col, plantType) {
     sunCount -= plantCost;
     sunCountText.innerHTML = sunCount;
 
-    let newPlant = { type: plantType, x: plantX, y: plantY, row, col };
+    let newPlant = { type: plantType, x: plantX, y: plantY, row, col, health: 30 };
 
     if (plantType === 'sunflower') {
         newPlant.lastSunTime = Date.now();
+    } else if (plantType === 'wallnut') {
+        newPlant.health = WALL_NUT_HP;
     }
 
     plants.push(newPlant);
@@ -413,6 +423,92 @@ function updateSunflowers() {
             });
 
             plant.lastSunTime = currentTime;
+        }
+    }
+}
+
+const projectiles = [];
+
+function shootPea(plant) {
+        projectiles.push({
+        x: plant.x + 50,
+        y: plant.y + 10,
+        speed: 5,
+        type: plant.type
+    });
+}
+
+function updateProjectiles() {
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+        let pea = projectiles[i];
+        pea.x += pea.speed;
+
+        // remove off screen
+        if (pea.x > canvas.width) {
+            projectiles.splice(i, 1);
+            continue;
+        }
+
+        for (let j = zombies.length - 1; j >= 0; j--) {
+            let zombie = zombies[j];
+            if (
+                pea.y > zombie.y - 10 && pea.y < zombie.y - 10 + zombieHeight &&
+                pea.x > zombie.x && pea.x < zombie.x + zombieWidth
+            ) {
+                if (pea.type === 'snowpea') {
+                    zombie.speed = 0.15;
+                }
+
+                zombie.health -= 20;
+                projectiles.splice(i, 1);
+
+                if (zombie.health <= 0) {
+                    zombies.splice(j, 1);
+                    score += Math.floor((Math.random() * 10) + 1);
+                    scoreText.innerHTML = score;
+                }
+
+                break;
+            }
+        }
+    }
+}
+
+function drawProjectiles() {
+    projectiles.forEach(pea => {
+        let img = pea.type === 'snowpea' ? icePeaImage : peaImage;
+        if (img.complete) {
+            ctx.drawImage(img, pea.x, pea.y, 20, 20);
+        }
+    })
+}
+
+function checkForZombiesInRow(row) {
+    return zombies.some(zombie => zombie.row === row);
+}
+
+function updatePeashooterAttack() {
+    const currentTime = Date.now();
+
+    for (let plant of plants) {
+        if (plant.type === 'peashooter') {
+            if (checkForZombiesInRow(plant.row)) {
+                
+                if (!plant.lastShotTime || currentTime - plant.lastShotTime >= 1500) { 
+                    shootPea(plant);
+                    plant.lastShotTime = currentTime;
+                }
+            }
+        }
+
+        if (plant.type === 'snowpea') {
+            if (checkForZombiesInRow(plant.row)) {
+                if (!plant.lastShotTime || currentTime - plant.lastShotTime >= 1500) { 
+                    ctx.fillStyle = 'blue';
+                    shootPea(plant);
+                    plant.lastShotTime = currentTime;
+                }
+            }
         }
     }
 }
@@ -492,6 +588,114 @@ canvas.addEventListener('click', (e) => {
     }
 })
 
+// zombies
+const zombies = [];
+let zombieSpeed = 0.1;
+const zombieWidth = 50;
+const zombieHeight = 50;
+const difficultySettings = {
+    easy: 1,
+    medium: 2,
+    hard: 3
+}
+
+function spawnZombie() {
+    let difficulty = selectLevel.value;
+    let zombiesToSpawn = difficultySettings[difficulty] || 1;
+
+    // Generate an array of all row indices
+    let availableRows = [...Array(grid.rows).keys()];
+
+    // Shuffle the rows randomly
+    availableRows.sort(() => Math.random() - 0.5);
+
+    for (let i = 0; i < zombiesToSpawn && availableRows.length > 0; i++) {
+        let randomRow = availableRows.pop(); // Get a unique row
+
+        let cell = getCellPosition(randomRow, grid.cols - 1);
+        if (!cell) continue;
+
+        zombies.push({
+            x: canvas.width,
+            y: cell.y + (grid.cellHeight / 2 - zombieHeight / 2),
+            row: randomRow,
+            speed: zombieSpeed,
+            health: 100,
+            lastBiteTime: 0
+        });
+    }
+}
+
+
+function updateZombies() {
+    let currentTime = Date.now();
+
+    for (let i = zombies.length - 1; i >= 0; i--) {
+        let zombie = zombies[i];
+        let plant = plants.find(p => p.row === zombie.row && Math.abs(p.x - zombie.x) < 30);
+
+        if (plant) {
+            zombie.isBiting = true;
+            zombie.speed = 0.01;
+
+            if (!zombie.lastBiteTime || currentTime - zombie.lastBiteTime >= 1000) {
+                plant.health -= 10;
+                zombie.lastBiteTime = currentTime;
+
+                if (plant.health <= 0) {
+                    plants.splice(plants.indexOf(plant), 1);
+                    zombie.isBiting = false;
+                    zombie.speed = 0.2;
+                }
+            }
+        } else {
+            zombie.isBiting = false;
+            zombie.speed = 0.2;
+            zombie.x -= zombie.speed;
+        }
+    }
+}
+
+
+function drawZombies() {
+    ctx.fillStyle = 'red';
+
+    zombies.forEach(zombie => {
+        ctx.fillRect(zombie.x, zombie.y, zombieWidth, zombieHeight);
+        zombie.x -= zombie.speed;
+    });
+}
+
+// lawn mowers
+
+function updateLawnmowers() {
+    for (let i = lawnmowers.length - 1; i >= 0; i--) {
+        let mower = lawnmowers[i];
+
+        if (!mower.active) {
+            let zombieInLane = zombies.find(z => Math.abs(z.x - mower.x) < 30 && Math.abs(z.y - mower.y) < 30);
+            if (zombieInLane) {
+                mower.active = true;
+                mower.image = lawnmowerActiveImage;
+            }
+        } else {
+            mower.x += lawnmowerSpeed;
+
+            for (let j = zombies.length - 1; j >= 0; j--) {
+                let zombie = zombies[j];
+
+                if (Math.abs(mower.y - zombie.y) < 30 && mower.x < zombie.x + zombieWidth) {
+                    zombies.splice(j, 1);
+                    break;
+                }
+            }
+
+            if (mower.x > canvas.width) {
+                lawnmowers.splice(i, 1);
+            }
+        }
+    }
+}
 
 function updateFrame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -501,13 +705,20 @@ function updateFrame() {
     drawShovel();
     drawSeeds();
     drawSeedSelected();
-    drawLawnMowers();
     drawPlants();
     updateSunflowers();
+    updateZombies();
+    drawZombies();
+    updateLawnmowers();
+    drawLawnMowers();
+    updateProjectiles();
+    drawProjectiles();
+    updatePeashooterAttack();
     drawSun();
 
     requestAnimationFrame(updateFrame);
 }
+
 
 function gameStart() {
     updateFrame();
@@ -515,6 +726,7 @@ function gameStart() {
     preloadPlants();
     
     setInterval(summonSun, 15000);
+    setInterval(spawnZombie, 5000);
 
     for (let i = 0; i < 2; i++) {
         suns.push(createSun());
