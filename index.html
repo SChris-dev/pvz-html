@@ -41,7 +41,20 @@
     <div id="gameContainer">
         <p id="sunCountText">50</p>
         <canvas id="canvas"></canvas>
-        <div class="game-stats">
+        <div id="gameOverContainer">
+            <h1>Gameover</h1>
+            <div class="gameover-content">
+                <p>The zombies got into your house.</p>
+                <p>Username: <span id="gameOverUsername"></span></p>
+                <p>Score: <span id="gameOverScore"></span></p>
+                <p>Time: <span id="gameOverTime"></span></p>
+            </div>
+            <div class="gameover-buttons">
+                <button id="overSaveScoreBtn">Save Score</button>
+                <button id="overRestartBtn">Restart</button>
+            </div>
+        </div>
+        <div class="game-stats" id="gameStats">
             <p id="usernameText">Player Name</p>
             <p>Score : <span id="scoreText">0</span></p>
             <p>Time : <span id="timerText">00:00</span></p>

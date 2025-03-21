@@ -101,6 +101,7 @@ let sunCount = 50;
 let selectedPlant = null;
 let plants = [];
 let shovelSelected = false;
+let gameOver = false;
 const WALL_NUT_HP = 100;
 
 // grid
@@ -159,8 +160,8 @@ function createSun() {
     return {
         x: x,
         y: y,
-        width: 92,
-        height: 95,
+        width: 75,
+        height: 79,
         speed: 1.5,
         spawnTime: Date.now()
     };
@@ -185,11 +186,6 @@ function drawSun() {
 
         return true;
     });
-
-    // suns.forEach((sun) => {
-    //     ctx.drawImage(sunImage, sun.x, sun.y, sun.width, sun.height);
-    //     sun.y += sun.speed;
-    // })
 }
 
 function drawLawn() {
@@ -285,8 +281,6 @@ function preloadPlants(callback) {
         plantAnimations[type].frames = frames;
     }
 }
-
-
 
 function drawPlants() {
     let animationFrame = Math.floor(performance.now() / 20);
@@ -416,8 +410,8 @@ function updateSunflowers() {
             suns.push({
                 x: plant.x + 10,
                 y: plant.y - 20,
-                width: 92,
-                height: 95,
+                width: 75,
+                height: 79,
                 speed: 0,
                 spawnTime: Date.now()
             });
@@ -427,10 +421,11 @@ function updateSunflowers() {
     }
 }
 
+// peashooters
 const projectiles = [];
 
 function shootPea(plant) {
-        projectiles.push({
+    projectiles.push({
         x: plant.x + 50,
         y: plant.y + 10,
         speed: 5,
@@ -628,11 +623,18 @@ function spawnZombie() {
 
 
 function updateZombies() {
+    if (gameOver) return;
+
     let currentTime = Date.now();
 
     for (let i = zombies.length - 1; i >= 0; i--) {
         let zombie = zombies[i];
         let plant = plants.find(p => p.row === zombie.row && Math.abs(p.x - zombie.x) < 30);
+
+        if (zombie.x <= 0) {
+            initiateGameOver();
+            return;
+        }
 
         if (plant) {
             zombie.isBiting = true;
@@ -725,10 +727,37 @@ function gameStart() {
     startTimer();
     preloadPlants();
     
-    setInterval(summonSun, 15000);
-    setInterval(spawnZombie, 5000);
+    setInterval(summonSun, 12500);
+    setTimeout(() => {
+        setInterval(spawnZombie, 5000);
+    }, 5000);
 
     for (let i = 0; i < 2; i++) {
         suns.push(createSun());
     }
+}
+
+// game over
+
+const gameOverContainer = document.getElementById('gameOverContainer');
+const gameOverUsername = document.getElementById('gameOverUsername');
+const gameOverScore = document.getElementById('gameOverScore');
+const gameOverTime = document.getElementById('gameOverTime');
+const gameStats = document.getElementById('gameStats');
+
+function initiateGameOver() {
+    clearInterval(timerInterval);
+    canvas.style.display = 'none';
+    gameStats.style.display = 'none';
+    sunCountText.style.display = 'none';
+    gameOverContainer.style.display = 'flex';
+    gameOverUsername.innerHTML = usernameInput.value;
+    gameOverScore.innerHTML = score;
+
+    let minutes = Math.floor(timer / 60);
+    let seconds = timer % 60;
+
+    let formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    gameOverTime.innerHTML = formattedTime;
 }
